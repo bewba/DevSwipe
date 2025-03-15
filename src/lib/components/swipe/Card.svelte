@@ -2,8 +2,13 @@
   import { createEventDispatcher } from 'svelte';
 
   let startX = 0;
+  let startY = 0;
+  let currentX = 0;
+  let currentY = 0;
   let card;
   let isDragging = false;
+  let swipeThreshold = 100; // Minimum distance to trigger swipe
+  let opacity = 1;
   const dispatch = createEventDispatcher();
 
   export let companyName = '';
@@ -12,45 +17,61 @@
 
   function handleStart(event) {
     startX = event.type === 'touchstart' ? event.touches[0].clientX : event.clientX;
+    startY = event.type === 'touchstart' ? event.touches[0].clientY : event.clientY;
+    currentX = startX;
+    currentY = startY;
     isDragging = true;
+    card.style.transition = 'none';
   }
 
   function handleMove(event) {
     if (!isDragging) return;
-    let clientX = event.type === 'touchmove' ? event.touches[0].clientX : event.clientX;
-    let diff = clientX - startX;
-    card.style.transform = `translateX(${diff}px) rotate(${diff * 0.1}deg)`;
+    
+    event.preventDefault();
+    currentX = event.type === 'touchmove' ? event.touches[0].clientX : event.clientX;
+    currentY = event.type === 'touchmove' ? event.touches[0].clientY : event.clientY;
+    
+    const diffX = currentX - startX;
+    const diffY = currentY - startY;
+    const rotation = diffX * 0.1;
+    
+    // Calculate opacity based on swipe distance
+    opacity = Math.max(1 - Math.abs(diffX) / (swipeThreshold * 2), 0.5);
+    
+    // Apply transform with smooth movement
+    card.style.transform = `translate(${diffX}px, ${diffY}px) rotate(${rotation}deg)`;
+    card.style.opacity = opacity.toString();
   }
 
-  function handleEnd(event) {
+  function handleEnd() {
     if (!isDragging) return;
     isDragging = false;
-    let clientX = event.type === 'touchend' ? event.changedTouches[0].clientX : event.clientX;
-    let diff = clientX - startX;
-    if (diff > 50) {
-      card.style.transform = 'translateX(100%) rotate(20deg)';
+    
+    const diffX = currentX - startX;
+    card.style.transition = 'all 0.3s ease-out';
+    
+    if (Math.abs(diffX) > swipeThreshold) {
+      const direction = diffX > 0 ? 1 : -1;
+      card.style.transform = `translateX(${direction * window.innerWidth}px) rotate(${direction * 30}deg)`;
       card.style.opacity = '0';
-      setTimeout(() => dispatch('remove'), 300); // Dispatch remove event after animation
-    } else if (diff < -50) {
-      card.style.transform = 'translateX(-100%) rotate(-20deg)';
-      card.style.opacity = '0';
-      setTimeout(() => dispatch('remove'), 300); // Dispatch remove event after animation
+      setTimeout(() => dispatch('remove'), 300);
     } else {
-      card.style.transform = '';
+      // Spring back animation
+      card.style.transform = 'translate(0, 0) rotate(0deg)';
+      card.style.opacity = '1';
     }
   }
 
   function handleMouseLeave() {
     if (isDragging) {
-      isDragging = false;
-      card.style.transform = '';
+      handleEnd();
     }
   }
 </script>
 
 <div
   bind:this={card}
-  class="card border border-gray-300 rounded-lg p-4 w-80 h-96 text-center transition-transform duration-300 hover:shadow-xl hover:scale-105 hover:border-blue-500 hover:cursor-pointer"
+  class="card border border-gray-300 rounded-lg p-4 w-80 h-96 text-center hover:shadow-xl hover:border-blue-500 hover:cursor-grab active:cursor-grabbing"
   on:touchstart={handleStart}
   on:touchmove={handleMove}
   on:touchend={handleEnd}
@@ -67,5 +88,10 @@
 <style>
   .card {
     max-width: 100%;
+    user-select: none;
+    touch-action: none;
+    position: relative;
+    background: white;
+    will-change: transform, opacity;
   }
-</style>  
+</style>
