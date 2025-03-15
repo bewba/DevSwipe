@@ -1,44 +1,42 @@
-<script>
+<script lang="ts">
   import { createEventDispatcher } from 'svelte';
 
   let startX = 0;
   let startY = 0;
   let currentX = 0;
   let currentY = 0;
-  let card;
+  let card: HTMLElement;
   let isDragging = false;
-  let swipeThreshold = 100; // Minimum distance to trigger swipe
+  let swipeThreshold = 100;
   let opacity = 1;
   const dispatch = createEventDispatcher();
 
   export let companyName = '';
   export let jobDescription = '';
-  export let imageUrl = 'https://via.placeholder.com/300'; // Default image
+  export let imageUrl = 'https://via.placeholder.com/300';
 
-  function handleStart(event) {
-    startX = event.type === 'touchstart' ? event.touches[0].clientX : event.clientX;
-    startY = event.type === 'touchstart' ? event.touches[0].clientY : event.clientY;
+  function handleStart(event: TouchEvent | MouseEvent) {
+    startX = event instanceof TouchEvent ? event.touches[0].clientX : (event as MouseEvent).clientX;
+    startY = event instanceof TouchEvent ? event.touches[0].clientY : (event as MouseEvent).clientY;
     currentX = startX;
     currentY = startY;
     isDragging = true;
     card.style.transition = 'none';
   }
 
-  function handleMove(event) {
+  function handleMove(event: TouchEvent | MouseEvent) {
     if (!isDragging) return;
     
     event.preventDefault();
-    currentX = event.type === 'touchmove' ? event.touches[0].clientX : event.clientX;
-    currentY = event.type === 'touchmove' ? event.touches[0].clientY : event.clientY;
+    currentX = event instanceof TouchEvent ? event.touches[0].clientX : (event as MouseEvent).clientX;
+    currentY = event instanceof TouchEvent ? event.touches[0].clientY : (event as MouseEvent).clientY;
     
     const diffX = currentX - startX;
     const diffY = currentY - startY;
     const rotation = diffX * 0.1;
     
-    // Calculate opacity based on swipe distance
     opacity = Math.max(1 - Math.abs(diffX) / (swipeThreshold * 2), 0.5);
     
-    // Apply transform with smooth movement
     card.style.transform = `translate(${diffX}px, ${diffY}px) rotate(${rotation}deg)`;
     card.style.opacity = opacity.toString();
   }
@@ -56,7 +54,6 @@
       card.style.opacity = '0';
       setTimeout(() => dispatch('remove'), 300);
     } else {
-      // Spring back animation
       card.style.transform = 'translate(0, 0) rotate(0deg)';
       card.style.opacity = '1';
     }
