@@ -42,7 +42,7 @@
 </script>
 
 <main class="min-h-screen bg-gray-900 flex items-center justify-center px-4 py-12">
-    <div class="bg-gray-800 p-8 rounded-xl shadow-lg w-1/2 max-w-md border border-gray-700">
+    <div class="bg-gray-800 p-8 rounded-xl shadow-lg w-1/2 p-8 max-w-md border border-gray-700">
         <h1 class="text-3xl font-bold text-center mb-8 text-white">Create Account</h1>
         
         <form on:submit|preventDefault={handleSubmit} class="space-y-6" >
