@@ -3,7 +3,6 @@
         email: '',
         password: '',
         confirmPassword: '',
-        name: ''
     };
     let errors = {};
     
@@ -17,9 +16,7 @@
         
         if (!formData.confirmPassword) errors.confirmPassword = 'Please confirm your password';
         else if (formData.password !== formData.confirmPassword) errors.confirmPassword = 'Passwords do not match';
-        
-        if (!formData.name) errors.name = 'Name is required';
-        
+
         return Object.keys(errors).length === 0;
     }
 
@@ -49,20 +46,6 @@
         <h1 class="text-3xl font-bold text-center mb-8 text-white">Create Account</h1>
         
         <form on:submit|preventDefault={handleSubmit} class="space-y-6" >
-            <div>
-                <label for="name" class="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
-                <input
-                    type="text"
-                    id="name"
-                    bind:value={formData.name}
-                    class="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:border-cyan-400"
-                    placeholder="Username"
-                />
-                {#if errors.name}
-                    <p class="text-red-400 text-sm mt-1">{errors.name}</p>
-                {/if}
-            </div>
-
             <div>
                 <label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
                 <input
