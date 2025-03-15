@@ -49,10 +49,10 @@
     card.style.transition = 'all 0.3s ease-out';
     
     if (Math.abs(diffX) > swipeThreshold) {
-      const direction = diffX > 0 ? 1 : -1;
-      card.style.transform = `translateX(${direction * window.innerWidth}px) rotate(${direction * 30}deg)`;
+      const direction = diffX > 0 ? 'right' : 'left';
+      card.style.transform = `translateX(${diffX > 0 ? window.innerWidth : -window.innerWidth}px) rotate(${diffX > 0 ? 30 : -30}deg)`;
       card.style.opacity = '0';
-      setTimeout(() => dispatch('remove'), 300);
+      setTimeout(() => dispatch('remove', { direction }), 300);
     } else {
       card.style.transform = 'translate(0, 0) rotate(0deg)';
       card.style.opacity = '1';

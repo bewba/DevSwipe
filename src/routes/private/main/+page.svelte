@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import Card from '$lib/components/swipe/Card.svelte';
     import { fade } from 'svelte/transition';
 
@@ -10,9 +10,14 @@
         { id: 4, companyName: "Innovation Labs", jobDescription: "Software Architect" }
     ];
 
-    function handleCardRemove() {
-        // Remove the first job from the array
+    $: lastSwipeDirection = '';
+
+    
+
+    function handleCardRemove(event: CustomEvent<{ direction: 'left' | 'right' }>) {
+        lastSwipeDirection = event.detail.direction;
         jobs = jobs.slice(1);
+        console.log(lastSwipeDirection)
     }
 </script>
 
@@ -22,6 +27,16 @@
         <h1 class="text-4xl font-bold my-6 bg-gradient-to-r from-blue-400 to-cyan-300 text-transparent bg-clip-text mb-16">
             DevSwipe
         </h1>
+        
+        {#if lastSwipeDirection}
+            <div 
+                class="mb-4 text-lg font-semibold" 
+                style="color: {lastSwipeDirection === 'right' ? '#4ade80' : '#ef4444'}"
+                transition:fade
+            >
+                Swiped {lastSwipeDirection}!
+            </div>
+        {/if}
         
         <div class="relative w-80 h-96">
             {#each jobs as job, i (job.id)}
